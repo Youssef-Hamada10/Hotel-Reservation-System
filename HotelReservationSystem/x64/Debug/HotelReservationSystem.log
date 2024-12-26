@@ -1,0 +1,8 @@
+﻿  main.cpp
+D:\projects\vs\HotelReservationSystem\HotelReservationSystem\main.cpp(1031,7): warning C4101: 'answer': unreferenced local variable
+D:\projects\vs\HotelReservationSystem\HotelReservationSystem\main.cpp(233,1): warning C4715: 'findusertype': not all control paths return a value
+D:\projects\vs\HotelReservationSystem\HotelReservationSystem\main.cpp(685,1): warning C4715: 'getDay': not all control paths return a value
+D:\projects\vs\HotelReservationSystem\HotelReservationSystem\main.cpp(698,1): warning C4715: 'getTime': not all control paths return a value
+D:\projects\vs\HotelReservationSystem\HotelReservationSystem\main.cpp(917,1): warning C4715: 'getRoomById': not all control paths return a value
+D:\projects\vs\HotelReservationSystem\HotelReservationSystem\main.cpp(927,1): warning C4715: 'getBookingIndex': not all control paths return a value
+  HotelReservationSystem.vcxproj -> D:\projects\vs\HotelReservationSystem\x64\Debug\HotelReservationSystem.exe
