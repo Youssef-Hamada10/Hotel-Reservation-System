@@ -1,0 +1,8 @@
+﻿  Source.cpp
+D:\projects\Vs\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(76,6): warning C4326: return type of 'main' should be 'int' instead of 'void'
+D:\projects\Vs\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(581,1): warning C4715: 'decodeDays': not all control paths return a value
+D:\projects\Vs\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(606,1): warning C4715: 'decodePeriods': not all control paths return a value
+D:\projects\Vs\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(718,1): warning C4715: 'findRoomById': not all control paths return a value
+D:\projects\Vs\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(728,1): warning C4715: 'findBookingByID': not all control paths return a value
+D:\projects\Vs\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(738,1): warning C4715: 'findUserByID': not all control paths return a value
+  Hotel-Reservation-System.vcxproj -> D:\projects\Vs\Hotel-Reservation-System\x64\Debug\Hotel-Reservation-System.exe
