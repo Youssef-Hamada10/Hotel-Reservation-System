@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <queue>
 using namespace std;
 
 //constant values.......
@@ -42,6 +43,7 @@ struct User {
 };
 
 //functions def.......
+queue<string> split(string line, char ch);
 void readRooms(vector<Room>& rooms);
 void writeRooms(vector<Room> rooms);
 void readUsers(vector<User>& users);
@@ -79,10 +81,10 @@ void main() {
 	vector<User> users;
 
 	//read data......
-	/*readRooms(rooms);
-	readUsers(users);*/
+	readRooms(rooms);
+	readUsers(users);
 
-	cout << "NOTICE THAT THE HOTEL IS WORKING FOR ONE WEEK ONLY...\nEACH DAY HAVE THREE PERIOD - MORNING - AFTERNON EVENING....\n";
+	cout << "NOTICE THAT THE HOTEL IS WORKING FOR ONE WEEK ONLY...\nEACH DAY HAVE THREE PERIOD - MORNING - AFTERNON - EVENING....\n";
 
 
 	int choice;
@@ -101,108 +103,153 @@ void main() {
 			break;
 		case 3:
 			// write data.....
-			/*writeRooms(rooms);
-			writeUsers(users);*/
+			writeRooms(rooms);
+			writeUsers(users);
 			return;
 		default:
 			cout << "Incorrect Choice...\n";
 			break;
 		}
 	}
-
 }
 
 // file handling fun
+queue<string> split(string line, char ch) {
+	int initIndex = 0;
+	int finalIndex;
+	queue<string> q;
+	while (true) {
+		finalIndex = line.find(ch);
+		q.push(line.substr(initIndex, finalIndex));
+		line.erase(initIndex, finalIndex + 1);
+		if (finalIndex == -1)
+			break;
+	}
+	return q;
+}
+
 void readRooms(vector<Room>& rooms) {
 	Room room;
-	fstream in("rooms.txt", ios::in);
-	if (!in) {
-		cout << "file not found" << endl;
-		in.close();
+	ifstream file("rooms.csv"); // Open file for reading
+
+	if (!file) {
+		cout << "Error opening file!" << endl;
 		return;
 	}
-	for (int i = 0; !in.eof(); i++) {
-		in >> room.roomID >> room.roomType >> room.location >> room.price;
-		room.location = replace(room.location, '_', ' ');
-		for (int j = 0; j < DAYS; j++) {
-			for (int k = 0; k < PERIODS; k++) {
-				in >> room.availability[j][k];
+	string line;
+	queue<string> data;
+	getline(file, line); // to ignore header
+	while (getline(file, line)) {
+		data = split(line, ',');
+		room.roomID = stoi(data.front());
+		data.pop();
+		room.roomType = replace(data.front(), '_', ' ');
+		data.pop();
+		room.location = replace(data.front(), '_', ' ');
+		data.pop();
+		room.price = stoi(data.front());
+		data.pop();
+		for (int i = 0; i < DAYS; i++) {
+			for (int j = 0; j < PERIODS; j++) {
+				room.availability[i][j] = (data.front() == "1");
+				data.pop();
 			}
 		}
 		rooms.push_back(room);
 		ROOMCOUNTER++;
 	}
-	in.close();
+	file.close();
 }
 
 void writeRooms(vector<Room> rooms) {
-	fstream out("rooms.txt", ios::out);
-	if (!out) {
-		cout << "file not found" << endl;
-		out.close();
+	ofstream file("rooms.csv"); // Open file for writing
+
+	if (!file) {
+		cout << "Error opening file!" << endl;
 		return;
 	}
-	for (int i = 0; i < rooms.size(); i++) {
-		out << endl;
-		out << rooms[i].roomID << " " << rooms[i].roomType << " " << replace(rooms[i].location, ' ', '_') << " " << rooms[i].price;
-		for (int j = 0; j < DAYS; j++) {
-			for (int k = 0; k < PERIODS; k++) {
-				out << " " << rooms[i].availability[j][k];
+
+	file << "ID,room type,location,price,sat, , ,sun, , ,mon, , ,tue, , ,wed, , ,thu, , ,fri, , \n";  // Header
+	for (Room room : rooms) {
+		file << room.roomID;
+		file << "," << room.roomType;
+		file << "," << replace(room.location, ' ', '_');
+		file << "," << room.price;
+		for (int i = 0; i < DAYS; i++) {
+			for (int j = 0; j < PERIODS; j++) {
+				file << "," << room.availability[i][j];
 			}
 		}
+		file << "\n";
 	}
-	out.close();
+	file.close(); // Close the file
 }
 
 void readUsers(vector<User>& users) {
 	User user;
-	fstream in("users.txt", ios::in);
-	if (!in) {
-		cout << "file not found" << endl;
-		in.close();
+	Booking booking;
+	ifstream file("users.csv"); // Open file for reading
+
+	if (!file) {
+		cout << "Error opening file!" << endl;
 		return;
 	}
-	else {
-		for (int i = 0; !in.eof(); i++) {
-			in >> user.userID >> user.username >> user.name >> user.password;
-			user.username = replace(user.username, '_', ' ');
-			user.name = replace(user.name, '_', ' ');
-			in >> user.numOfBookings;
-			for (int j = 0; j < user.numOfBookings; j++) {
-				in >> user.bookings[j].bookingID >> user.bookings[j].roomID >> user.bookings[j].userID >> user.bookings[j].startDay >> user.bookings[j].startPeriod >> user.bookings[j].endDay >> user.bookings[j].endPeriod;
-				BOOKINGCOUNTER++;
-			}
-			users.push_back(user);
-			USERCOUNTER++;
+	string line;
+	queue<string> data;
+	getline(file, line); // to ignore header
+	while (getline(file, line)) {
+		data = split(line, ',');
+		user.userID = stoi(data.front());
+		data.pop();
+		user.name = replace(data.front(), '_', ' ');
+		data.pop();
+		user.username = data.front();
+		data.pop();
+		user.numOfBookings = stoi(data.front());
+		data.pop();
+		int counter = user.numOfBookings;
+		while (counter > 0) {
+			booking.bookingID = stoi(data.front());
+			data.pop();
+			booking.userID = user.userID;
+			booking.roomID = stoi(data.front());
+			data.pop();
+			booking.startDay = stoi(data.front());
+			data.pop();
+			booking.startPeriod = stoi(data.front());
+			data.pop();
+			booking.endDay = stoi(data.front());
+			data.pop();
+			booking.endPeriod = stoi(data.front());
+			data.pop();
+			user.bookings.push_back(booking);
+			BOOKINGCOUNTER++;
+			counter--;
 		}
+		users.push_back(user);
+		USERCOUNTER++;
 	}
-	in.close();
+	file.close();
 }
 
 void writeUsers(vector<User> users) {
-	fstream out("users.txt", ios::out);
-	if (!out) {
-		cout << "file not found" << endl;
-		out.close();
+	ofstream file("users.csv"); // Open file for writing
+
+	if (!file) {
+		cout << "Error opening file!" << endl;
 		return;
 	}
-	else {
-		for (User user : users) {
-			out << user.userID << " " << replace(user.username, ' ', '_') << " " << replace(user.name, ' ', '_') << " " << user.password << " " << user.numOfBookings;
-			for (Booking booking : user.bookings) {
-				out << " " << booking.bookingID << " " << booking.roomID << " " << booking.userID << " " << booking.startDay << " " << booking.startPeriod << " " << booking.endDay << " " << booking.endPeriod;
-			}
-			out << endl;
+
+	file << "userID,name,username,password,numberOfBookings,bookingID,roomID,startDay,startPeriod,endDay,endPeriod \n";  // Header
+	for (User user : users) {
+		file << user.userID << " " << replace(user.name, ' ', '_') << " " << user.username << " " << user.password << " " << user.numOfBookings;
+		for (Booking booking : user.bookings) {
+			file << booking.bookingID << " " << booking.roomID << " " << booking.startDay << " " << booking.startPeriod;
+			file << " " << booking.endDay << " " << booking.endPeriod;
 		}
+		file << "\n";
 	}
-	/*for (int i = 0; i < users.size(); i++) {
-		out << users[i].userID << " " << replace(users[i].username, ' ', '_') << " " << replace(users[i].name, ' ', '_') << " " << users[i].password;
-		for (int j = 0; j < users[i].bookings.size(); j++) {
-			out << " " << users[i].bookings[j].bookingID << " " << users[i].bookings[j].roomID << " " << users[i].bookings[j].userID << " " << users[i].bookings[j].startDay << " " << users[i].bookings[j].startPeriode << " " << users[i].bookings[j].endDay << " " << users[i].bookings[j].endPeriode;
-		}
-		out << endl;
-	}*/
-	out.close();
+	file.close(); // Close the file
 }
 
 string replace(string str, char replaceChar, char replaceWith) {
@@ -369,6 +416,7 @@ void editRoom(vector<Room>& rooms, vector<User> users) {
 			break;
 		case 6:
 			rooms.erase(rooms.begin() + findRoomById(rooms, ID), rooms.begin() + findRoomById(rooms, ID) + 1);
+			cout << "Room Is Removed.....\n";
 			break;
 		case 7:
 			return;
@@ -527,8 +575,8 @@ void bookRoom(vector<Room>& rooms, vector<User>& users, User& user) {
 		booking.startPeriod = startPeriod;
 		booking.endDay = endDay;
 		booking.endPeriod = endPeriod;
-		users[findUserByID(users, user.userID)].bookings.push_back(booking);
-		users[findUserByID(users, user.userID)].numOfBookings++;
+		//users[findUserByID(users, user.userID)].bookings.push_back(booking);
+		//users[findUserByID(users, user.userID)].numOfBookings++;
 		user.bookings.push_back(booking);
 		user.numOfBookings++;
 		cout << "The Room Is Booked Successfully......\n";
@@ -633,7 +681,7 @@ void viewBookedRoom(vector<Room>& rooms, User user) {
 	}
 	else {
 		for (Booking booking : user.bookings) {
-			printf("Booking ID Is: %-3i User ID Is: %-3i Room ID Is %-3i \n", booking.bookingID, booking.userID, booking.roomID);
+			printf("Booking ID Is: %-3i User ID Is: %-3i Room ID Is %-3i ", booking.bookingID, booking.userID, booking.roomID);
 			cout << "Room Location Is : " << rooms[findRoomById(rooms, booking.roomID)].location << endl;
 			cout << "Start Day Is: " << decodeDays(booking.startDay) << "   Start Period Is: " << decodePeriods(booking.startPeriod) << "   End Day Is: " << decodeDays(booking.endDay) << "   End Period Is: " << decodePeriods(booking.endPeriod);
 			cout << endl;
@@ -699,10 +747,10 @@ void removeBooking(vector<Room>& rooms, vector<User>& users, User user) {
 			}
 		}
 		BOOKINGCOUNTER--;
-		users[findUserByID(users, user.userID)].bookings.erase(user.bookings.begin() + findBookingByID(user, bookingID), user.bookings.begin() + findBookingByID(user, bookingID) + 1);
+		//users[findUserByID(users, user.userID)].bookings.erase(user.bookings.begin() + findBookingByID(user, bookingID), user.bookings.begin() + findBookingByID(user, bookingID) + 1);
 		user.bookings.erase(user.bookings.begin() + findBookingByID(user, bookingID), user.bookings.begin() + findBookingByID(user, bookingID) + 1);
 		user.numOfBookings--;
-		users[findUserByID(users, user.userID)].numOfBookings--;
+		//users[findUserByID(users, user.userID)].numOfBookings--;
 		cout << "The Booking Is Removed Successfully\n";
 	}
 }

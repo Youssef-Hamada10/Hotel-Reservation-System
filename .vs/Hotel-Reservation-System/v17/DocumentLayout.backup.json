@@ -1,9 +1,9 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\projects\\Vs\\Hotel-Reservation-System\\",
+  "WorkspaceRootPath": "D:\\projects\\Completed\\Hotel-Reservation-System\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1C8C2D28-883B-4439-9C2E-AFED7542D3C5}|Hotel-Reservation-System\\Hotel-Reservation-System.vcxproj|D:\\projects\\Vs\\Hotel-Reservation-System\\Hotel-Reservation-System\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "AbsoluteMoniker": "D:0:0:{1C8C2D28-883B-4439-9C2E-AFED7542D3C5}|Hotel-Reservation-System\\Hotel-Reservation-System.vcxproj|D:\\projects\\Completed\\Hotel-Reservation-System\\Hotel-Reservation-System\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{1C8C2D28-883B-4439-9C2E-AFED7542D3C5}|Hotel-Reservation-System\\Hotel-Reservation-System.vcxproj|solutionrelative:Hotel-Reservation-System\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
@@ -20,11 +20,11 @@
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "Source.cpp",
-              "DocumentMoniker": "D:\\projects\\Vs\\Hotel-Reservation-System\\Hotel-Reservation-System\\Source.cpp",
+              "DocumentMoniker": "D:\\projects\\Completed\\Hotel-Reservation-System\\Hotel-Reservation-System\\Source.cpp",
               "RelativeDocumentMoniker": "Hotel-Reservation-System\\Source.cpp",
-              "ToolTip": "D:\\projects\\Vs\\Hotel-Reservation-System\\Hotel-Reservation-System\\Source.cpp",
+              "ToolTip": "D:\\projects\\Completed\\Hotel-Reservation-System\\Hotel-Reservation-System\\Source.cpp",
               "RelativeToolTip": "Hotel-Reservation-System\\Source.cpp",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAAAE0AAAAUAAAAAAAAAA==",
+              "ViewState": "AgIAAHEAAAAAAAAAAAAAAHYBAAA2AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-03-26T17:39:43.763Z",
               "EditorCaption": ""
