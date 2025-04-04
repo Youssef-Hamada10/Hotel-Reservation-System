@@ -1,4 +1,5 @@
 #include <iostream>
+#include <conio.h>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -31,6 +32,7 @@ struct Booking {
 	int startPeriod;
 	int endDay;
 	int endPeriod;
+	int totalPrice;
 };
 
 struct User {
@@ -50,32 +52,33 @@ void readUsers(vector<User>& users);
 void writeUsers(vector<User> users);
 string replace(string str, char replaceChar, char replaceWith);
 void signIn(vector<Room>& rooms, vector<User>& users);
-void signUp(vector<User>& users);
+void signUp(vector<Room>& rooms, vector<User>& users);
+string usernameDomain(string name);
 void adminPage(vector<Room>& rooms, vector<User> users);
+string getPassword();
 void addRoom(vector<Room>& rooms);
 void editRoom(vector<Room>& rooms, vector<User> users);
 void showAllRooms(vector<Room>& rooms);
 void showBookingInfo(vector<User> users, int ID);
-void userPage(vector<Room>& rooms, vector<User>& users, User& user);
+void userPage(vector<Room>& rooms, vector<User>& users, int currentUserID);
 int findRoomById(vector<Room>& rooms, int ID);
 void viewRoomBookings(vector<Room> rooms, vector<User> users, int ID); // view booking for a specific room using it's ID
-void bookRoom(vector<Room>& rooms, vector<User>& users, User& user);
-void viewBookedRoom(vector<Room>& rooms, User user);
+void bookRoom(vector<Room>& rooms, vector<User>& users, int currentUserID);
+void viewBookedRoom(vector<Room>& rooms, vector<User>& users, int currentUserID);
 int encodeDays(string day);
 string decodeDays(int day);
 int encodePeriods(string period);
 string decodePeriods(int period);
 bool checkAvailability(vector<Room> rooms, int roomIndex, int startDay, int startPeriod, int endDay, int endPeriod);
-//void viewBookedRoom(User user);
-void removeBooking(vector<Room>& rooms, vector<User>& users, User user);
-int findBookingByID(User user, int bookingID);
+void removeBooking(vector<Room>& rooms, vector<User>& users, int currentUserID);
+int findBookingByID(User& user, int bookingID);
 int findUserByID(vector<User>& users, int userID);
-void modifyBooking(vector<Room>& rooms, vector<User>& users, User user);
-void editReservationTime(vector<Room>& rooms, vector<User>& users, User user);
+void modifyBooking(vector<Room>& rooms, vector<User>& users, int currentUserID);
+void editReservationTime(vector<Room>& rooms, vector<User>& users, int currentUserID);
 
 
 // functions imp......
-void main() {
+int main() {
 	// container.......
 	vector<Room> rooms;
 	vector<User> users;
@@ -99,13 +102,13 @@ void main() {
 			signIn(rooms, users);
 			break;
 		case 2:
-			signUp(users);
+			signUp(rooms, users);
 			break;
 		case 3:
 			// write data.....
 			writeRooms(rooms);
 			writeUsers(users);
-			return;
+			return 0;
 		default:
 			cout << "Incorrect Choice...\n";
 			break;
@@ -143,9 +146,11 @@ void readRooms(vector<Room>& rooms) {
 		data = split(line, ',');
 		room.roomID = stoi(data.front());
 		data.pop();
-		room.roomType = replace(data.front(), '_', ' ');
+		//room.roomType = replace(data.front(), '_', ' ');
+		room.roomType = data.front();
 		data.pop();
-		room.location = replace(data.front(), '_', ' ');
+		//room.location = replace(data.front(), '_', ' ');
+		room.location = data.front();
 		data.pop();
 		room.price = stoi(data.front());
 		data.pop();
@@ -173,7 +178,8 @@ void writeRooms(vector<Room> rooms) {
 	for (Room room : rooms) {
 		file << room.roomID;
 		file << "," << room.roomType;
-		file << "," << replace(room.location, ' ', '_');
+		//file << "," << replace(room.location, ' ', '_');
+		file << "," << room.location;
 		file << "," << room.price;
 		for (int i = 0; i < DAYS; i++) {
 			for (int j = 0; j < PERIODS; j++) {
@@ -201,7 +207,8 @@ void readUsers(vector<User>& users) {
 		data = split(line, ',');
 		user.userID = stoi(data.front());
 		data.pop();
-		user.name = replace(data.front(), '_', ' ');
+		//user.name = replace(data.front(), '_', ' ');
+		user.name = data.front();
 		data.pop();
 		user.username = data.front();
 		data.pop();
@@ -223,6 +230,8 @@ void readUsers(vector<User>& users) {
 			data.pop();
 			booking.endPeriod = stoi(data.front());
 			data.pop();
+			booking.totalPrice = stoi(data.front());
+			data.pop();
 			user.bookings.push_back(booking);
 			BOOKINGCOUNTER++;
 			counter--;
@@ -241,12 +250,22 @@ void writeUsers(vector<User> users) {
 		return;
 	}
 
-	file << "userID,name,username,password,numberOfBookings,bookingID,roomID,startDay,startPeriod,endDay,endPeriod \n";  // Header
+	file << "userID,name,username,password,numberOfBookings,bookingID,roomID,startDay,startPeriod,endDay,endPeriod,totalPrice \n";  // Header
 	for (User user : users) {
-		file << user.userID << "," << replace(user.name, ' ', '_') << "," << user.username << "," << user.password << "," << user.numOfBookings;
+		file << user.userID << ",";
+		//file << replace(user.name, ' ', '_') << ",";
+		file << user.name << ",";
+		file << user.username << ",";
+		file << user.password << ",";
+		file << user.numOfBookings;
 		for (Booking booking : user.bookings) {
-			file << booking.bookingID << "," << booking.roomID << "," << booking.startDay << "," << booking.startPeriod;
-			file << "," << booking.endDay << "," << booking.endPeriod;
+			file << "," << booking.bookingID << ",";
+			file << booking.roomID << ",";
+			file << booking.startDay << ",";
+			file << booking.startPeriod << ",";
+			file << booking.endDay << ",";
+			file << booking.endPeriod << ",";
+			file << booking.totalPrice;
 		}
 		file << "\n";
 	}
@@ -274,8 +293,7 @@ void signIn(vector<Room>& rooms, vector<User>& users) {
 	string username;
 	cin >> username;
 	cout << "Enter Your Password:\n";
-	string password;
-	cin >> password;
+	string password = getPassword();
 	if (username == "admin" && password == "admin") {
 		valid = true;
 		adminPage(rooms, users);
@@ -284,7 +302,7 @@ void signIn(vector<Room>& rooms, vector<User>& users) {
 		for (User user : users) {
 			if (username == user.username && password == user.password) {
 				valid = true;
-				userPage(rooms, users, user);
+				userPage(rooms, users, user.userID);
 				break;
 			}
 		}
@@ -295,30 +313,27 @@ void signIn(vector<Room>& rooms, vector<User>& users) {
 }
 
 // signUp fun
-void signUp(vector<User>& users) {
+void signUp(vector<Room>& rooms, vector<User>& users) {
 	cout << "====================\n";
 	bool valid = false;
 	User temp;
-	cout << "Enter Your Name:\n";
+	cout << "Enter Your Full Name:\n";
 	getline(cin.ignore(1, '\n'), temp.name);
-	while (!valid) {
-		cout << "Enter Your Username:\n";
-		cin >> temp.username;
-		valid = true;
-		for (User user : users) {
-			if (user.username == temp.username) {
-				cout << "The Username is Already Exist...\n";
-				valid = false;
-				break;
-			}
-		}
-	}
+	temp.username = usernameDomain(temp.name);
+	cout << "Your Username Is : " << temp.username << endl;
 	cout << "Enter Your Password:\n";
-	cin >> temp.password;
+	temp.password = getPassword();
 	temp.userID = ++USERCOUNTER;
 	cout << "You Have Signed Up...\n";
 	users.push_back(temp);
+	userPage(rooms, users, temp.userID);
+}
 
+string usernameDomain(string name) {
+	string username = name;
+	username[username.find(' ')] = '-';
+	username.append("@User.Hotel");
+	return username;
 }
 
 // adminPage fun
@@ -331,7 +346,8 @@ void adminPage(vector<Room>& rooms, vector<User> users) {
 		cout << "Press [1] To Add Room:\n";
 		cout << "Press [2] To Edit Rooms:\n";
 		cout << "Press [3] To Show All Rooms:\n";
-		cout << "Press [4] To Exit:\n";
+		cout << "Press [4] to view room Bookings\n";
+		cout << "Press [5] To Exit:\n";
 		cin >> choice;
 		switch (choice) {
 		case 1:
@@ -344,10 +360,47 @@ void adminPage(vector<Room>& rooms, vector<User> users) {
 			showAllRooms(rooms);
 			break;
 		case 4:
+			if (rooms.empty()){
+				cout << "There IS no Room Yet...\n";
+				return;
+			}
+			cout << "Enter Room ID To Show It's Bookings\n";
+			int ID;
+			cin >> ID;
+			viewRoomBookings(rooms, users, ID);
+			break;
+		case 5:
 			return;
 		default:
 			cout << "Incorrect choice...\n";
 			break;
+		}
+	}
+}
+
+// password as astrisk fun
+string getPassword() {
+	string password;
+	char ch;
+	while (true) {
+		ch = _getch();
+		if (ch == 13) {
+			// enter bottom
+			if (!password.empty()) {
+				cout << endl;
+				return password;
+			}
+			else
+				continue;
+		}
+		else if ((ch == 8) && (!password.empty())) {
+			// delete bottom
+			cout << "\b \b";
+			password.pop_back();
+		}
+		else if (ch != 8) {
+			password.push_back(ch);
+			cout << "*";
 		}
 	}
 }
@@ -359,7 +412,7 @@ void addRoom(vector<Room>& rooms) {
 	temp.roomID = ++ROOMCOUNTER;
 	cout << "Enter Room Type:\n";
 	getline(cin.ignore(1, '\n'), temp.roomType);
-	cout << "Enter Room Price:\n";
+	cout << "Enter Room Price Per Period:\n";
 	cin >> temp.price;
 	cout << "Enter Room Location:\n";
 	getline(cin.ignore(1, '\n'), temp.location);
@@ -375,6 +428,8 @@ void addRoom(vector<Room>& rooms) {
 // editRoom fun
 void editRoom(vector<Room>& rooms, vector<User> users) {
 	showAllRooms(rooms);
+	if (rooms.empty())
+		return;
 	cout << "Enter Room ID to Edit It:\n";
 	int ID;
 	cin >> ID;
@@ -385,9 +440,8 @@ void editRoom(vector<Room>& rooms, vector<User> users) {
 		cout << "Press [2] to Edit Room Price\n";
 		cout << "Press [3] to Edit Room Location\n";
 		cout << "Press [4] to Edit Room Availability\n";
-		cout << "Press [5] to view room Bookings\n";
-		cout << "Press [6] to Remove Room\n";
-		cout << "Press [7] to Exit\n";
+		cout << "Press [5] to Remove Room\n";
+		cout << "Press [6] to Exit\n";
 		cin >> choice;
 		switch (choice) {
 		case 1:
@@ -405,21 +459,18 @@ void editRoom(vector<Room>& rooms, vector<User> users) {
 		case 4:
 			cout << "Enter Room Availability:\n";
 			for (int day = 0; day < DAYS; day++) {
-				cout << "For Day " << day + 1;
+				cout << "\tFor " << decodeDays(day) << endl;
 				for (int period = 0; period < PERIODS; period++) {
-					cout << "For Period " << period + 1;
+					cout << "For " << decodePeriods(period)  << " : ";
 					cin >> rooms[findRoomById(rooms, ID)].availability[day][period];
 				}
 			}
 			break;
 		case 5:
-			viewRoomBookings(rooms, users, ID);
-			break;
-		case 6:
 			rooms.erase(rooms.begin() + findRoomById(rooms, ID), rooms.begin() + findRoomById(rooms, ID) + 1);
 			cout << "Room Is Removed.....\n";
 			break;
-		case 7:
+		case 6:
 			return;
 		default:
 			cout << "Incorrect choice...\n";
@@ -490,8 +541,13 @@ void showBookingInfo(vector<User> users, int ID) {
 	for (int i = 0; i < users.size(); i++) {
 		for (int j = 0; j < users[i].bookings.size(); j++) {
 			if (ID == users[i].bookings[j].roomID) {
-				printf("Booking ID Is: %-3i User ID Is: %-3i Room ID Is %-3i ", users[i].bookings[j].bookingID, users[i].bookings[j].userID, users[i].bookings[j].roomID);
-				cout << "Start Day Is: " << decodeDays(users[i].bookings[j].startDay) << "   Start Period Is: " << decodePeriods(users[i].bookings[j].startPeriod) << "   End Day Is: " << decodeDays(users[i].bookings[j].endDay) << "   End Period Is: " << decodePeriods(users[i].bookings[j].endPeriod);
+				cout << "Booking ID Is: " << users[i].bookings[j].bookingID;
+				cout << "\t User ID Is: " << users[i].bookings[j].userID;
+				cout << "\t Room ID Is: " << users[i].bookings[j].roomID;
+				cout << "\t Start Day Is: " << users[i].bookings[j].startDay;
+				cout << "\t Start Period Is: " << users[i].bookings[j].startPeriod;
+				cout << "\t End Day Is: " << users[i].bookings[j].endDay;
+				cout << "\t End Period Is: " << users[i].bookings[j].endPeriod;
 				cout << endl;
 			}
 		}
@@ -499,9 +555,9 @@ void showBookingInfo(vector<User> users, int ID) {
 }
 
 // userPage fun
-void userPage(vector<Room>& rooms, vector<User>& users, User& user) {
+void userPage(vector<Room>& rooms, vector<User>& users, int currentUserID) {
 	cout << "====================\n";
-	cout << "WELCOME, " << user.name << endl;
+	cout << "WELCOME, " << users[currentUserID - 1].name << endl;
 	int choice;
 	while (true) {
 		cout << "====================\n";
@@ -512,13 +568,13 @@ void userPage(vector<Room>& rooms, vector<User>& users, User& user) {
 		cin >> choice;
 		switch (choice) {
 		case 1:
-			bookRoom(rooms, users, user);
+			bookRoom(rooms, users, currentUserID);
 			break;
 		case 2:
-			viewBookedRoom(rooms, user);
+			viewBookedRoom(rooms, users, currentUserID);
 			break;
 		case 3:
-			modifyBooking(rooms, users, user);
+			modifyBooking(rooms, users, currentUserID);
 			break;
 		case 4:
 			return;
@@ -530,7 +586,7 @@ void userPage(vector<Room>& rooms, vector<User>& users, User& user) {
 }
 
 // bookRoom fun
-void bookRoom(vector<Room>& rooms, vector<User>& users, User& user) {
+void bookRoom(vector<Room>& rooms, vector<User>& users, int currentUserID) {
 	cout << "====================\n";
 	bool valid = false;
 	string sd, ed, sp, ep;
@@ -540,6 +596,7 @@ void bookRoom(vector<Room>& rooms, vector<User>& users, User& user) {
 		return;
 	}
 	else {
+		cout << "NOTICE THAT IF YOU BOOK A PERIOD IN ANY DAY YOU WILL PAY FOR THE WHOLE DAY \n\n";
 		showAllRooms(rooms);
 		cout << "Enter Room ID to Book It:\n";
 		cin >> ID;
@@ -573,15 +630,14 @@ void bookRoom(vector<Room>& rooms, vector<User>& users, User& user) {
 		Booking booking;
 		booking.bookingID = ++BOOKINGCOUNTER;
 		booking.roomID = ID;
-		booking.userID = user.userID;
+		booking.userID = currentUserID;
 		booking.startDay = startDay;
 		booking.startPeriod = startPeriod;
 		booking.endDay = endDay;
 		booking.endPeriod = endPeriod;
-		//users[findUserByID(users, user.userID)].bookings.push_back(booking);
-		//users[findUserByID(users, user.userID)].numOfBookings++;
-		user.bookings.push_back(booking);
-		user.numOfBookings++;
+		booking.totalPrice = (endDay - startDay + 1) * rooms[roomIndex].price;
+		users[currentUserID - 1].bookings.push_back(booking);
+		users[currentUserID - 1].numOfBookings++;
 		cout << "The Room Is Booked Successfully......\n";
 	}
 }
@@ -661,7 +717,7 @@ bool checkAvailability(vector<Room> rooms, int roomIndex, int startDay, int star
 	bool avail = true;
 	for (int day = startDay; day <= endDay; day++) {
 		for (int period = 0; period < PERIODS; period++) {
-			if ((day == startDay && startPeriod >= period) || (day > startDay && day < endDay) || (startDay == endDay && endPeriod >= period)) {
+			if ((day == startDay && startPeriod <= period) || (day > startDay && day < endDay) || (startDay == endDay && endPeriod >= period)) {
 				if (rooms[roomIndex].availability[day][period] == false) {
 					avail = false;
 					break;
@@ -678,22 +734,26 @@ bool checkAvailability(vector<Room> rooms, int roomIndex, int startDay, int star
 }
 
 // viewBookedRoom fun
-void viewBookedRoom(vector<Room>& rooms, User user) {
-	if (user.bookings.empty()) {
+void viewBookedRoom(vector<Room>& rooms, vector<User>& users, int currentUserID) {
+	cout << "=================\n";
+	if (users[currentUserID - 1].bookings.empty()) {
 		cout << "You Have Not Any Bookings Yet...\n";
 	}
 	else {
-		for (Booking booking : user.bookings) {
-			printf("Booking ID Is: %-3i User ID Is: %-3i Room ID Is %-3i ", booking.bookingID, booking.userID, booking.roomID);
-			cout << "Room Location Is : " << rooms[findRoomById(rooms, booking.roomID)].location << endl;
-			cout << "Start Day Is: " << decodeDays(booking.startDay) << "   Start Period Is: " << decodePeriods(booking.startPeriod) << "   End Day Is: " << decodeDays(booking.endDay) << "   End Period Is: " << decodePeriods(booking.endPeriod);
-			cout << "\n-----------" << endl;
+		for (Booking booking : users[currentUserID - 1].bookings) {
+			cout << "Booking ID Is: " << booking.bookingID;
+			cout << "\t Room ID Is: " << booking.roomID;
+			cout << "\t Start Day Is: " << booking.startDay;
+			cout << "\t Start Period Is: " << booking.startPeriod;
+			cout << "\t End Day Is: " << booking.endDay;
+			cout << "\t End Period Is: " << booking.endPeriod;
+			cout << "\t Total Price Is: " << booking.totalPrice << endl;
 		}
 	}
 }
 
 // modifyBooking fun
-void modifyBooking(vector<Room>& rooms, vector<User>& users, User user) {
+void modifyBooking(vector<Room>& rooms, vector<User>& users, int currentUserID) {
 	cout << "====================\n";
 	int choice;
 	while (true) {
@@ -703,10 +763,10 @@ void modifyBooking(vector<Room>& rooms, vector<User>& users, User user) {
 		cin >> choice;
 		switch (choice) {
 		case 1:
-			removeBooking(rooms, users, user);
+			removeBooking(rooms, users, currentUserID);
 			break;
 		case 2:
-			editReservationTime(rooms, users, user);
+			editReservationTime(rooms, users, currentUserID);
 			break;
 		case 3:
 			return;
@@ -718,24 +778,24 @@ void modifyBooking(vector<Room>& rooms, vector<User>& users, User user) {
 }
 
 // removeBooking fun 
-void removeBooking(vector<Room>& rooms, vector<User>& users, User user) {
+void removeBooking(vector<Room>& rooms, vector<User>& users, int currentUserID) {
 	cout << "====================\n";
 	int bookingID;
-	if (user.bookings.empty()) {
+	if (users[currentUserID - 1].bookings.empty()) {
 		cout << "You Have Not Any Bookings Yet...\n";
 		return;
 	}
 	else {
-		viewBookedRoom(rooms, user);
+		viewBookedRoom(rooms, users, currentUserID);
 		cout << "====================\n";
 		cout << "Enter Booking ID That You Want To Remove:\n";
 		cin >> bookingID;
-		for (int i = 0; i < user.bookings.size(); i++) {
-			if (bookingID == user.bookings[i].bookingID) {
-				for (int day = user.bookings[i].startDay; day <= user.bookings[i].endDay; day++) {
+		for (int i = 0; i < users[currentUserID - 1].bookings.size(); i++) {
+			if (bookingID  == users[currentUserID - 1].bookings[i].bookingID) {
+				for (int day = users[currentUserID - 1].bookings[i].startDay; day <= users[currentUserID - 1].bookings[i].endDay; day++) {
 					for (int period = 0; period < PERIODS; period++) {
-						if ((user.bookings[i].startDay == day && user.bookings[i].startPeriod <= period) || (user.bookings[i].startDay < day && user.bookings[i].endDay > day) || (user.bookings[i].endDay == day && user.bookings[i].endPeriod >= period)) {
-							rooms[user.bookings[i].roomID].availability[day][period] = true;
+						if ((users[currentUserID - 1].bookings[i].startDay == day && users[currentUserID - 1].bookings[i].startPeriod <= period) || (users[currentUserID - 1].bookings[i].startDay < day && users[currentUserID - 1].bookings[i].endDay > day) || (users[currentUserID - 1].bookings[i].endDay == day && users[currentUserID - 1].bookings[i].endPeriod >= period)) {
+							rooms[users[currentUserID - 1].bookings[i].roomID - 1].availability[day][period] = true;
 						}
 						else
 							continue;
@@ -745,10 +805,8 @@ void removeBooking(vector<Room>& rooms, vector<User>& users, User user) {
 			}
 		}
 		BOOKINGCOUNTER--;
-		//users[findUserByID(users, user.userID)].bookings.erase(user.bookings.begin() + findBookingByID(user, bookingID), user.bookings.begin() + findBookingByID(user, bookingID) + 1);
-		user.bookings.erase(user.bookings.begin() + findBookingByID(user, bookingID), user.bookings.begin() + findBookingByID(user, bookingID) + 1);
-		user.numOfBookings--;
-		//users[findUserByID(users, user.userID)].numOfBookings--;
+		users[currentUserID - 1].bookings.erase(users[currentUserID - 1].bookings.begin() + findBookingByID(users[currentUserID - 1], bookingID), users[currentUserID - 1].bookings.begin() + findBookingByID(users[currentUserID - 1], bookingID) + 1);
+		users[currentUserID - 1].numOfBookings--;
 		cout << "The Booking Is Removed Successfully\n";
 	}
 }
@@ -764,7 +822,7 @@ int findRoomById(vector<Room>& rooms, int ID) { // return the index of the room
 }
 
 // findBookingByID fun
-int findBookingByID(User user, int bookingID) {
+int findBookingByID(User& user, int bookingID) {
 	for (int i = 0; i < user.bookings.size(); i++) {
 		if (bookingID == user.bookings[i].bookingID) {
 			return i;
@@ -784,9 +842,9 @@ int findUserByID(vector<User>& users, int userID) {
 }
 
 // editReservationTime fun
-void editReservationTime(vector<Room>& rooms, vector<User>& users, User user) {
+void editReservationTime(vector<Room>& rooms, vector<User>& users, int currentUserID) {
 	cout << "====================\n";
-	if (user.bookings.empty()) {
+	if (users[currentUserID - 1].bookings.empty()) {
 		cout << "You Have Not Any Bookings Yet...\n";
 		return;
 	}
@@ -794,9 +852,9 @@ void editReservationTime(vector<Room>& rooms, vector<User>& users, User user) {
 		string input;
 		int bookingID;
 		int choice;
-		viewBookedRoom(rooms, user);
+		viewBookedRoom(rooms, users, currentUserID);
 		cout << "====================\n";
-		cout << "Enter Booking ID That You Want To Remove:\n";
+		cout << "Enter Booking ID That You Want To Edit It:\n";
 		cin >> bookingID;
 		while (true) {
 			cout << "Press [1] To Edit Start Day:\n";
@@ -809,92 +867,96 @@ void editReservationTime(vector<Room>& rooms, vector<User>& users, User user) {
 			case 1:
 				cout << "Enter The New Start Day\n";
 				cin >> input;
-				if (encodeDays(input) > user.bookings[bookingID].endDay) {
+				if (encodeDays(input) > users[currentUserID - 1].bookings[bookingID - 1].endDay) {
 					cout << "Can Not Edit The Start Day\n";
 				}
 				else {
-					users[findUserByID(users, user.userID)].bookings[bookingID].startDay = encodeDays(input);
-					user.bookings[bookingID].startDay = encodeDays(input);
-					for (int day = user.bookings[bookingID].startDay; day <= user.bookings[bookingID].endDay; day++) {
-						for (int period = 0; period < PERIODS; period++) {
-							if ((user.bookings[bookingID].startDay == day && user.bookings[bookingID].startPeriod <= period) || (user.bookings[bookingID].startDay < day && user.bookings[bookingID].endDay > day) || (user.bookings[bookingID].endDay == day && user.bookings[bookingID].endPeriod >= period)) {
-								rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[day][period] = true;
+					users[currentUserID - 1].bookings[bookingID - 1].startDay = encodeDays(input);
+					users[currentUserID - 1].bookings[bookingID - 1].totalPrice = (users[currentUserID - 1].bookings[bookingID - 1].endDay - encodeDays(input) + 1) * rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].price;
+					for (int day = users[currentUserID - 1].bookings[bookingID - 1].startDay; day <= users[currentUserID - 1].bookings[bookingID - 1].endDay; day++) {
+						for (int period = users[currentUserID - 1].bookings[bookingID - 1].startPeriod; period < users[currentUserID - 1].bookings[bookingID - 1].endPeriod; period++) {
+							if ((users[currentUserID - 1].bookings[bookingID - 1].startDay == day && users[currentUserID - 1].bookings[bookingID - 1].startPeriod <= period) || (users[currentUserID - 1].bookings[bookingID - 1].startDay < day && users[currentUserID - 1].bookings[bookingID - 1].endDay > day) || (users[currentUserID - 1].bookings[bookingID - 1].endDay == day && users[currentUserID - 1].bookings[bookingID - 1].endPeriod >= period)) {
+								rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[day][period] = true;
 							}
 							else
 								continue;
 						}
 					}
-					for (int day = encodeDays(input); day <= user.bookings[bookingID].endDay; day++) {
-						for (int period = 0; period < PERIODS; period++) {
-							if ((user.bookings[bookingID].startDay == day && user.bookings[bookingID].startPeriod <= period) || (user.bookings[bookingID].startDay < day && user.bookings[bookingID].endDay > day) || (user.bookings[bookingID].endDay == day && user.bookings[bookingID].endPeriod >= period)) {
-								rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[day][period] = false;
+
+					for (int day = encodeDays(input); day <= users[currentUserID - 1].bookings[bookingID - 1].endDay; day++) {
+						for (int period = users[currentUserID - 1].bookings[bookingID - 1].startPeriod; period < users[currentUserID - 1].bookings[bookingID - 1].endPeriod; period++) {
+							if ((users[currentUserID - 1].bookings[bookingID - 1].startDay == day && users[currentUserID - 1].bookings[bookingID - 1].startPeriod <= period) || (users[currentUserID - 1].bookings[bookingID - 1].startDay < day && users[currentUserID - 1].bookings[bookingID - 1].endDay > day) || (users[currentUserID - 1].bookings[bookingID - 1].endDay == day && users[currentUserID - 1].bookings[bookingID - 1].endPeriod >= period)) {
+								rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[day][period] = false;
 							}
 							else
 								continue;
 						}
 					}
+					cout << "The Start Day Was Updated Successfully...\n";
 				}
 				break;
 			case 2:
 				cout << "Enter The New Start Period\n";
 				cin >> input;
-				users[findUserByID(users, user.userID)].bookings[bookingID].startPeriod = encodePeriods(input);
-				user.bookings[bookingID].startPeriod = encodePeriods(input);
-				if (encodePeriods(input) < user.bookings[bookingID].startPeriod) {
-					for (int i = encodePeriods(input); i < user.bookings[bookingID].startPeriod; i++) {
-						rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[user.bookings[bookingID].startDay][i] = false;
+				users[currentUserID - 1].bookings[bookingID - 1].startPeriod = encodePeriods(input);
+				if (encodePeriods(input) < users[currentUserID - 1].bookings[bookingID - 1].startPeriod) {
+					for (int i = encodePeriods(input); i < users[currentUserID - 1].bookings[bookingID - 1].startPeriod; i++) {
+						rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[users[currentUserID - 1].bookings[bookingID - 1].startDay][i] = false;
 					}
 				}
 				else {
-					for (int i = user.bookings[bookingID].startPeriod; i < encodePeriods(input); i++) {
-						rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[user.bookings[bookingID].startDay][i] = true;
+					for (int i = users[currentUserID - 1].bookings[bookingID - 1].startPeriod; i < encodePeriods(input); i++) {
+						rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[users[currentUserID - 1].bookings[bookingID - 1].startDay][i] = true;
 					}
 				}
+				cout << "The Start Period Was Updated Successfully...\n";
 				break;
 			case 3:
 				cout << "Enter The New End Day\n";
 				cin >> input;
-				if (encodeDays(input) < user.bookings[bookingID].startDay) {
+				if (encodeDays(input) < users[currentUserID - 1].bookings[bookingID - 1].startDay) {
 					cout << "Can Not Edit The End Day\n";
 				}
 				else {
-					users[findUserByID(users, user.userID)].bookings[bookingID].endDay = encodeDays(input);
-					user.bookings[bookingID].endDay = encodeDays(input);
-					for (int day = user.bookings[bookingID].startDay; day <= user.bookings[bookingID].endDay; day++) {
-						for (int period = 0; period < PERIODS; period++) {
-							if ((user.bookings[bookingID].startDay == day && user.bookings[bookingID].startPeriod <= period) || (user.bookings[bookingID].startDay < day && user.bookings[bookingID].endDay > day) || (user.bookings[bookingID].endDay == day && user.bookings[bookingID].endPeriod >= period)) {
-								rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[day][period] = true;
+					users[currentUserID - 1].bookings[bookingID - 1].endDay = encodeDays(input);
+					users[currentUserID - 1].bookings[bookingID - 1].totalPrice = (encodeDays(input) - users[currentUserID - 1].bookings[bookingID - 1].startDay + 1) * rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].price;
+					for (int day = users[currentUserID - 1].bookings[bookingID - 1].startDay; day <= users[currentUserID - 1].bookings[bookingID - 1].endDay; day++) {
+						for (int period = users[currentUserID - 1].bookings[bookingID - 1].startPeriod; period < users[currentUserID - 1].bookings[bookingID - 1].endPeriod; period++) {
+							if ((users[currentUserID].bookings[bookingID - 1].startDay == day && users[currentUserID].bookings[bookingID - 1].startPeriod <= period) || (users[currentUserID - 1].bookings[bookingID - 1].startDay < day && users[currentUserID - 1].bookings[bookingID - 1].endDay > day) || (users[currentUserID - 1].bookings[bookingID - 1].endDay == day && users[currentUserID - 1].bookings[bookingID - 1].endPeriod >= period)) {
+								rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[day][period] = true;
 							}
 							else
 								continue;
 						}
 					}
-					for (int day = user.bookings[bookingID].startDay; day <= encodeDays(input); day++) {
-						for (int period = 0; period < PERIODS; period++) {
-							if ((user.bookings[bookingID].startDay == day && user.bookings[bookingID].startPeriod <= period) || (user.bookings[bookingID].startDay < day && user.bookings[bookingID].endDay > day) || (user.bookings[bookingID].endDay == day && user.bookings[bookingID].endPeriod >= period)) {
-								rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[day][period] = false;
+
+					for (int day = users[currentUserID - 1].bookings[bookingID - 1].startDay; day <= encodeDays(input); day++) {
+						for (int period = users[currentUserID - 1].bookings[bookingID - 1].startPeriod; period < users[currentUserID - 1].bookings[bookingID - 1].endPeriod; period++) {
+							if ((users[currentUserID - 1].bookings[bookingID - 1].startDay == day && users[currentUserID - 1].bookings[bookingID - 1].startPeriod <= period) || (users[currentUserID- 1].bookings[bookingID - 1].startDay < day && users[currentUserID - 1].bookings[bookingID - 1].endDay > day) || (users[currentUserID - 1].bookings[bookingID - 1].endDay == day && users[currentUserID - 1].bookings[bookingID - 1].endPeriod >= period)) {
+								rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[day][period] = false;
 							}
 							else
 								continue;
 						}
 					}
+					cout << "The End Day Was Updated Successfully...\n";
 				}
 				break;;
 			case 4:
 				cout << "Enter The New End Period\n";
 				cin >> input;
-				users[findUserByID(users, user.userID)].bookings[bookingID].endPeriod = encodePeriods(input);
-				user.bookings[bookingID].endPeriod = encodePeriods(input);
-				if (encodePeriods(input) < user.bookings[bookingID].endPeriod) {
-					for (int i = encodePeriods(input) + 1; i <= user.bookings[bookingID].startPeriod; i++) {
-						rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[user.bookings[bookingID].endDay][i] = true;
+				users[currentUserID - 1].bookings[bookingID - 1].endPeriod = encodePeriods(input);
+				if (encodePeriods(input) < users[currentUserID - 1].bookings[bookingID - 1].endPeriod) {
+					for (int i = encodePeriods(input) + 1; i <= users[currentUserID - 1].bookings[bookingID - 1].startPeriod; i++) {
+						rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[users[currentUserID - 1].bookings[bookingID - 1].endDay][i] = true;
 					}
 				}
 				else {
-					for (int i = user.bookings[bookingID].endPeriod + 1; i <= encodePeriods(input); i++) {
-						rooms[findRoomById(rooms, user.bookings[bookingID].roomID)].availability[user.bookings[bookingID].endDay][i] = false;
+					for (int i = users[currentUserID - 1].bookings[bookingID - 1].endPeriod + 1; i <= encodePeriods(input); i++) {
+						rooms[findRoomById(rooms, users[currentUserID - 1].bookings[bookingID - 1].roomID)].availability[users[currentUserID - 1].bookings[bookingID - 1].endDay][i] = false;
 					}
 				}
+				cout << "The End Period Was Updated Successfully...\n";
 				break;
 			case 5:
 				return;

@@ -1,9 +1,8 @@
 ﻿  Source.cpp
-D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(78,6): warning C4326: return type of 'main' should be 'int' instead of 'void'
-D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(122,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(632,1): warning C4715: 'decodeDays': not all control paths return a value
-D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(657,1): warning C4715: 'decodePeriods': not all control paths return a value
-D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(764,1): warning C4715: 'findRoomById': not all control paths return a value
-D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(774,1): warning C4715: 'findBookingByID': not all control paths return a value
-D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(784,1): warning C4715: 'findUserByID': not all control paths return a value
+D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(125,25): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(688,1): warning C4715: 'decodeDays': not all control paths return a value
+D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(713,1): warning C4715: 'decodePeriods': not all control paths return a value
+D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(822,1): warning C4715: 'findRoomById': not all control paths return a value
+D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(832,1): warning C4715: 'findBookingByID': not all control paths return a value
+D:\projects\Completed\Hotel-Reservation-System\Hotel-Reservation-System\Source.cpp(842,1): warning C4715: 'findUserByID': not all control paths return a value
   Hotel-Reservation-System.vcxproj -> D:\projects\Completed\Hotel-Reservation-System\x64\Debug\Hotel-Reservation-System.exe

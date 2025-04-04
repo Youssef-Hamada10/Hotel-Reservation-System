@@ -1,2 +1,3 @@
-userID,name,username,password,numberOfBookings,bookingID,roomID,startDay,startPeriod,endDay,endPeriod 
-1,aisha,aisha123,123,0
+		userID,		name,		username,		password,		numberOfBookings,		bookingID,		roomID,		startDay,		startPeriod,		endDay,		endPeriod,		totalPrice 
+1,aisha ali,aisha-ali@User.Hotel,123,2,1,1,5,2,6,0,1000,2,2,0,0,2,2,300
+2,khadija omar,khadija-omar@User.Hotel,456,1,1,1,5,2,6,0,1000,2,2,0,0,2,2,300,3,3,3,1,5,2,600
